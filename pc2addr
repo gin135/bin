@@ -1,0 +1,11 @@
+#!/bin/sh
+
+#set -exv
+
+if [ $# -ne 1 ]; then
+    exit 1
+fi
+
+curl --silent http://zip.cgis.biz/csv/zip.php?zn=`echo -n $1 | tr -d '-'` |
+nkf -w -Lu |
+awk -F, 'NR==1{if(gensub(/"/, "", "g", $9)=="0"){exit}}; NR==2{print gensub(/"/, "", "g", $5$6$7)}'

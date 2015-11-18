@@ -1,0 +1,47 @@
+#!/bin/sh
+
+arg=
+brightness=
+prev_brightness=`cat /sys/class/backlight/acpi_video0/brightness`
+
+
+if [ $# = 0 ]; then
+    echo -n "Current Brightness is $prev_brightness"
+    echo ""
+
+    while true ; do
+        echo "Brightness value is [1~15]"
+        echo -n "Please enter [1~15]: "
+
+        read arg
+        case "$arg" in
+            [1-9] | [1-9]*[0-5])
+                brightness=$arg
+                #echo "brightness_value :"$brightness
+                break
+                ;;
+            *)
+                echo -e "\nDidn't match anything..."
+        esac
+        #if [ arg -ge 0 -a arg -le 15 ]; then #こっちのやり方はargを整数に変換する必要がある
+        #    brightness=arg
+        #else
+        #    echo "Invalid input"
+        #    echo ""
+        #fi
+    done
+elif [ $# = 1 ]; then
+    if [ $1 -ge 0 -a $1 -le 15 ]; then
+        brightness=$1
+    fi
+else
+    echo "Usage: `basename $0` [brightness_value]"
+    echo "[brightness_value] is [0~15]"
+    exit 1
+fi
+
+
+echo "previous value is $prev_brightness"
+
+echo $brightness |
+sudo tee /sys/class/backlight/acpi_video0/brightness

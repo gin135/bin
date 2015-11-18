@@ -1,0 +1,85 @@
+#!/bin/sh -xv
+
+arg=
+governor=
+
+if [ $# -eq 0 ]; then
+    echo -n "Current governor: "
+
+    cpupower frequency-info -p |
+    tail -n 1 |
+    awk '{print $3}'
+
+    echo ""
+
+    while true ; do
+        echo " 1) powersave 2) conservative 3) ondemand 4) performance "
+        echo -n "Please enter [1,2,3,4]: "
+
+        read arg
+        case "$arg" in
+            1 )
+                governor="powersave"
+                break;
+                ;;
+            2 )
+                governor="conservative"
+                break;
+                ;;
+            3 )
+                governor="ondemand"
+                break;
+                ;;
+            4 )
+                governor="performance"
+                break;
+                ;;
+            * )
+                echo "Invalid input"
+                echo ""
+                ;;
+        esac
+    done
+elif [ $# -eq 1 ]; then
+    case $1 in
+        powersave | conservative | ondemand | performance )
+            governor=$1
+            ;;
+        * )
+            echo "Usage: `basename $0` [governor]"
+            echo "Governor is [ powersave | conservative | ondemand | performance ]"
+            exit 1
+            ;;
+    esac
+else
+    echo "Usage: `basename $0` [governor]"
+
+    echo "Current governor is \"`cpupower frequency-info -p |
+    tail -n 1 |
+    awk '{print $3}'`\""
+
+    exit 1
+fi
+
+
+if [ $UID -eq 0 ]; then
+    cpupower --cpu all frequency-set -g $governor
+else
+    sudo cpupower --cpu all frequency-set -g $governor || exit 1
+fi
+
+
+echo ''
+echo -n "Current governor: "
+
+cpupower frequency-info -p |
+tail -n 1 |
+awk '{print $3}'
+
+echo "Current frequency"
+
+cpupower --cpu all frequency-info -fm |
+grep Hz |
+nl -n ln |
+sed -e 's/^/CPU/' |
+sed -e 's/[ 	][ 	][ 	]*/: /g'

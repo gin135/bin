@@ -1,0 +1,65 @@
+#!/bin/sh
+
+#set -evx
+
+
+file_path=/tmp
+
+
+if [ -s $file_path/arch_pkg_list.txt ]; then
+    mv $file_path/arch_pkg_list.txt $file_path/arch_pkg_list_old.txt
+fi
+
+
+curl -f --silent https://www.archlinux.org/feeds/packages/ |
+awk 'END{print}' |
+sed -e 's;<item>;\n&;g' |
+sed -e 's;</item>;&\n;g' |
+grep -Ev '(community|multilib)?-?testing' |
+grep -v '^$' |
+grep -v '<rss ' |
+grep -v '</rss>' |
+sed -e 's;</\?item>;;g' |
+sed -e 's;<[^/]*>;;g' |
+sed -e 's;</[[:alnum:]_-]*>;%;g' |
+awk -F% '{OFS="#"; print $1$6,"\""$3"\"",$5}' |
+sed -e 's@tag:www.archlinux.org,@@' |
+sed -e 's@:/packages/.*@@' |
+sed -e 's;\(x86_64\|i686\|any\);(&/;' |
+sed -e 's;#";)&;' |
+tr -d '"' > $file_path/arch_pkg_list.txt
+
+
+if [ ! "-s $file_path/arch_pkg_list.txt" ]; then
+    mv $file_path/arch_pkg_list_old.txt $file_path/arch_pkg_list.txt
+fi
+
+if [ ! -e $file_path/arch_pkg_list.txt ]; then
+    exit
+elif [ ! -e $file_path/arch_pkg_list_old.txt ]; then
+    exit
+fi
+
+
+
+# echo 'renpy 6.99.7-1 (x86_64/Community)#The Ren'\''Py Visual Novel Engine#2015-11-14> # for testing
+# hogehoge 6.99.7-1 (x86_64/Community)#foo bar#2015-11-14>
+# hogehoge 6.99.7-1 (x86_64/Community)#kyou https://www.archlinux.Org ha ii tenki desu.#2015-11-14>' |
+
+cmp -s $file_path/arch_pkg_list.txt $file_path/arch_pkg_list_old.txt || diff $file_path/arch_pkg_list.txt $file_path/arch_pkg_list_old.txt |
+tac |
+grep -E '^< ' |
+sed -e 's/^<//g' |
+awk -F# '{OFS="#"; print $1,gensub("'\''", "'\''\\\\'\'''\''", "g", $2), $3}' | #t updateで引数を適切に扱えるように、シングルクォートを加工
+awk -F# '{OFS="#"; print $1,gensub("(https?):(//)", "\\1;\\2", "g", $2), $3}' | #post時にURL展開をされないように、https+://を加工
+awk -F# '{OFS="#"; print $1,gensub("\\.(net|NET|org|Org|com|at|tv|info|gov|edu|coop|asia|biz|int|mobi)", " dot \\1", "g", $2), $3}' | #post時にURL変換されないように、TLDを加工
+awk -F# '\
+    BEGIN{OFS="#"; max_chars=135}; \
+    length($0)>max_chars{printf("%s#\"%s...\"#<%s>\n",$1, substr($2,1,(max_chars - (length($1)+length($3)+3))), $3); next}; \
+    {print $1,"\""$2"\"","<"$3">"}' \
+        |
+sed -e 's@^ @t update -P $HOME/.trc_update_bot '\''@' |
+sed -e 's@$@'\''; sleep 5;@' |
+tr '#' '\n' |
+tee -a /home/gin/tmp/gen_arch_pkg_list_test_log.txt |
+sh 1>/dev/null

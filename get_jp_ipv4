@@ -1,0 +1,7 @@
+#!/bin/sh
+
+
+curl --silent http://ftp.apnic.net/stats/apnic/delegated-apnic-latest |
+grep "JP" |
+grep "ipv4" |
+awk -F'|' '{FS="|"; OFS=""; print $4,"/",log(2**32/$5)/log(2)}'
