@@ -1,5 +1,9 @@
 #!/bin/sh
 
+#
+# Usage: $ pc2addr POSTAL_CODE
+#
+
 #set -exv
 
 if [ $# -ne 1 ]; then

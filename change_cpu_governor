@@ -2,6 +2,7 @@
 
 #
 # Require: cpupower (linux-tools)
+# Usage: $ change_cpu_governor [cpu_governor]
 #
 
 arg=

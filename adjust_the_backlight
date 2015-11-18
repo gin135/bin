@@ -1,5 +1,10 @@
 #!/bin/sh
 
+#
+# (Arch Linux)
+# Usage: $ adjust_the_backlight [target_brightness_value]
+#
+
 arg=
 brightness=
 prev_brightness=`cat /sys/class/backlight/acpi_video0/brightness`

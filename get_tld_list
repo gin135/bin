@@ -1,5 +1,9 @@
 #!/bin/sh
 
+#
+# Usage: $ get_tld_list
+#
+
 curl --fail --silent http://www.iana.org/domains/root/db |
 grep 'class="domain tld"' |
 sed -e 's;<[^>]*>;;g' -e 's/&#x[0-9a-z]\{4\};//g' |
