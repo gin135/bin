@@ -3,7 +3,8 @@
 #set -evx
 
 
-file_path=/tmp
+file_path='/tmp'
+trc_file='/home/gin/.trc_update_bot'
 
 
 if [ -s $file_path/arch_pkg_list.txt ]; then
@@ -11,7 +12,7 @@ if [ -s $file_path/arch_pkg_list.txt ]; then
 fi
 
 
-curl -f --silent https://www.archlinux.org/feeds/packages/ |
+curl --fail --silent https://www.archlinux.org/feeds/packages/ |
 awk 'END{print}' |
 sed -e 's;<item>;\n&;g' |
 sed -e 's;</item>;&\n;g' |
@@ -58,7 +59,7 @@ awk -F# '\
     length($0)>max_chars{printf("%s#\"%s...\"#<%s>\n",$1, substr($2,1,(max_chars - (length($1)+length($3)+3))), $3); next}; \
     {print $1,"\""$2"\"","<"$3">"}' \
         |
-sed -e 's@^ @t update -P $HOME/.trc_update_bot '\''@' |
+sed -e 's@^ @t update -P $trc_file '\''@' |
 sed -e 's@$@'\''; sleep 5;@' |
 tr '#' '\n' |
 tee -a /home/gin/tmp/gen_arch_pkg_list_test_log.txt |
