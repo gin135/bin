@@ -69,7 +69,7 @@ awk -F# '\
     length($0)>max_chars{printf("%s#\"%s...\"#<%s>\n",$1, substr($2,1,(max_chars - (length($1)+length($3)+3))), $3); next}; \
     {print $1,"\""$2"\"","<"$3">"}' \
         |
-sed -e 's@^ @t update -P ${trc_file} '\''@' |
+sed -e 's@^ @t update -P /home/gin/.trc_update_bot '\''@' |
 sed -e 's@$@'\''; sleep 5;@' |
 tr '#' '\n' |
 tee -a /home/gin/tmp/gen_arch_pkg_list_test_log.txt |
