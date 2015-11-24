@@ -62,7 +62,7 @@ tac |
 grep -E '^< ' |
 sed -e 's/^<//g' |
 awk -F# '{OFS="#"; print $1,gensub("'\''", "'\''\\\\'\'''\''", "g", $2), $3}' | #t updateで引数を適切に扱えるように、シングルクォートを加工
-awk -F# '{OFS="#"; print $1,gensub("(https?):(//)", "\\1;\\2", "g", $2), $3}' | #post時にURL展開をされないように、https+://を加工
+awk -F# '{OFS="#"; print $1,gensub("(https?):(//)", "\\1;\\2", "g", $2), $3}' | #post時にURL展開をされないように、https?://を加工
 awk -F# '{OFS="#"; print $1,gensub("\\.(net|NET|org|Org|com|at|tv|info|gov|edu|coop|asia|biz|int|mobi)", " dot \\1", "g", $2), $3}' | #post時にURL変換されないように、TLDを加工
 awk -F# '\
     BEGIN{OFS="#"; max_chars=135}; \
