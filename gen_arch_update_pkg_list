@@ -14,7 +14,7 @@
 
 
 file_path='/tmp'
-trc_file='/home/gin/.trc_update_bot'
+#trc_file='/home/gin/.trc_update_bot'
 
 
 if [ -s $file_path/arch_pkg_list.txt ]; then
@@ -38,6 +38,7 @@ sed -e 's@tag:www.archlinux.org,@@' |
 sed -e 's@:/packages/.*@@' |
 sed -e 's;\(x86_64\|i686\|any\);(&/;' |
 sed -e 's;#";)&;' |
+sed -e 's/\&amp;/\&/g' -e 's/\&lt;/</g' -e 's/\&gt;/>/g' -e 's/\&nbsp;/ /g' |
 tr -d '"' > $file_path/arch_pkg_list.txt
 
 
