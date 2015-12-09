@@ -23,7 +23,7 @@ fi
 
 
 curl --fail --silent https://www.archlinux.org/feeds/packages/ |
-awk 'END{print}' |
+gawk 'END{print}' |
 sed -e 's;<item>;\n&;g' |
 sed -e 's;</item>;&\n;g' |
 grep -Ev '(community|multilib)?-?testing' |
@@ -33,7 +33,7 @@ grep -v '</rss>' |
 sed -e 's;</\?item>;;g' |
 sed -e 's;<[^/]*>;;g' |
 sed -e 's;</[[:alnum:]_-]*>;%;g' |
-awk -F% '{OFS="#"; print $1$6,"\""$3"\"",$5}' |
+gawk -F% '{OFS="#"; print $1$6,"\""$3"\"",$5}' |
 sed -e 's@tag:www.archlinux.org,@@' |
 sed -e 's@:/packages/.*@@' |
 sed -e 's;\(x86_64\|i686\|any\);(&/;' |
@@ -62,10 +62,10 @@ cmp -s $file_path/arch_pkg_list.txt $file_path/arch_pkg_list_old.txt || diff $fi
 tac |
 grep -E '^< ' |
 sed -e 's/^<//g' |
-awk -F# '{OFS="#"; print $1,gensub("'\''", "'\''\\\\'\'''\''", "g", $2), $3}' | #t updateで引数を適切に扱えるように、シングルクォートを加工
-awk -F# '{OFS="#"; print $1,gensub("(https?):(//)", "\\1;\\2", "g", $2), $3}' | #post時にURL展開をされないように、https?://を加工
-awk -F# '{OFS="#"; print $1,gensub("\\.(net|NET|org|Org|com|at|tv|info|gov|edu|coop|asia|biz|int|mobi)", " dot \\1", "g", $2), $3}' | #post時にURL変換されないように、TLDを加工
-awk -F# '\
+#gawk -F# '{OFS="#"; print $1,gensub("'\''", "'\''\\\\'\'''\''", "g", $2), $3}' | #t updateで引数を適切に扱えるように、シングルクォートを加工 ### 140字以下に切り詰められた際、クォートの対応が取れなくなる可能性がある。
+gawk -F# '{OFS="#"; print $1,gensub("(https?):(//)", "\\1;\\2", "g", $2), $3}' | #post時にURL展開をされないように、https?://を加工
+gawk -F# '{OFS="#"; print $1,gensub("\\.(net|NET|org|Org|com|at|tv|info|gov|edu|coop|asia|biz|int|mobi)", " dot \\1", "g", $2), $3}' | #post時にURL変換されないように、TLDを加工
+gawk -F# '\
     BEGIN{OFS="#"; max_chars=135}; \
     length($0)>max_chars{printf("%s#\"%s...\"#<%s>\n",$1, substr($2,1,(max_chars - (length($1)+length($3)+3))), $3); next}; \
     {print $1,"\""$2"\"","<"$3">"}' \
