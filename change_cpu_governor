@@ -1,4 +1,5 @@
-#!/bin/sh -xv
+#!/bin/sh
+#set xv
 
 #
 # Require: cpupower (linux-tools)
