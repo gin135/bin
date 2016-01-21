@@ -1,11 +1,16 @@
 #!/bin/sh
 
 #
-# Require tac(GNU textutils), t(ruby gem "https://github.com/sferik/t")
+# Abstract
+#   Arch Linuxの更新パッケージ(除Testing)を通知するbotスクリプト
+#   (https://twitter.com/arch_update_bot)
+#
+# Require
+# - tac(GNU textutils)
+# - t(ruby gem "https://github.com/sferik/t")
 #
 
 #set -evx
-
 
 #
 # nohup
@@ -22,23 +27,40 @@ if [ -s $file_path/arch_pkg_list.txt ]; then
 fi
 
 
-curl --fail --silent https://www.archlinux.org/feeds/packages/ |
-gawk 'END{print}' |
-sed -e 's;<item>;\n&;g' |
-sed -e 's;</item>;&\n;g' |
-grep -Ev '(community|multilib)?-?testing' |
-grep -v '^$' |
-grep -v '<rss ' |
-grep -v '</rss>' |
-sed -e 's;</\?item>;;g' |
-sed -e 's;<[^/]*>;;g' |
-sed -e 's;</[[:alnum:]_-]*>;%;g' |
-gawk -F% '{OFS="#"; print $1$6,"\""$3"\"",$5}' |
-sed -e 's@tag:www.archlinux.org,@@' |
-sed -e 's@:/packages/.*@@' |
-sed -e 's;\(x86_64\|i686\|any\);(&/;' |
-sed -e 's;#";)&;' |
-sed -e 's/\&amp;/\&/g' -e 's/\&lt;/</g' -e 's/\&gt;/>/g' -e 's/\&nbsp;/ /g' |
+curl --fail --silent https://www.archlinux.org/feeds/packages/ \
+|
+gawk 'END {print}' \
+|
+sed -e 's;<item>;\n&;g' \
+|
+sed -e 's;</item>;&\n;g' \
+|
+grep -Ev '(community|multilib)?-?testing' \
+|
+grep -v '^$' \
+|
+grep -v '<rss ' \
+|
+grep -v '</rss>' \
+|
+sed -e 's;</\?item>;;g' \
+|
+sed -e 's;<[^/]*>;;g' \
+|
+sed -e 's;</[[:alnum:]_-]*>;%;g' \
+|
+gawk -F% 'OFS="#"; {print $1$6,"\""$3"\"",$5}' \
+|
+sed -e 's@tag:www.archlinux.org,@@' \
+|
+sed -e 's@:/packages/.*@@' \
+|
+sed -e 's;\(x86_64\|i686\|any\);(&/;' \
+|
+sed -e 's;#";)&;' \
+|
+sed -e 's/\&amp;/\&/g' -e 's/\&lt;/</g' -e 's/\&gt;/>/g' -e 's/\&nbsp;/ /g' \
+|
 tr -d '"' > $file_path/arch_pkg_list.txt
 
 
@@ -54,24 +76,30 @@ fi
 
 
 
-# echo 'renpy 6.99.7-1 (x86_64/Community)#The Ren'\''Py Visual Novel Engine#2015-11-14> # for testing
-# hogehoge 6.99.7-1 (x86_64/Community)#foo bar#2015-11-14>
-# hogehoge 6.99.7-1 (x86_64/Community)#kyou https://www.archlinux.Org ha ii tenki desu.#2015-11-14>' |
-
-cmp -s $file_path/arch_pkg_list.txt $file_path/arch_pkg_list_old.txt || diff $file_path/arch_pkg_list.txt $file_path/arch_pkg_list_old.txt |
-tac |
-grep -E '^< ' |
-sed -e 's/^<//g' |
-gawk -F# '{OFS="#"; print $1,gensub("'\''", "'\''\\\\'\'''\''", "g", $2), $3}' | #t updateで引数を適切に扱えるように、シングルクォートを加工 ### 140字以下に切り詰められた際、クォートの対応が取れなくなる可能性がある。
-gawk -F# '{OFS="#"; print $1,gensub("(https?):(//)", "\\1;\\2", "g", $2), $3}' | #post時にURL展開をされないように、https?://を加工
-gawk -F# '{OFS="#"; print $1,gensub("\\.(net|NET|org|Org|com|at|tv|info|gov|edu|coop|asia|biz|int|mobi)", " dot \\1", "g", $2), $3}' | #post時にURL変換されないように、TLDを加工
+cmp -s $file_path/arch_pkg_list.txt $file_path/arch_pkg_list_old.txt || diff $file_path/arch_pkg_list.txt $file_path/arch_pkg_list_old.txt \
+|
+tac \
+|
+grep -E '^< ' \
+|
+sed -e 's/^<//g' \
+|
+gawk -F# 'OFS="#"; {print $1,gensub("'\''", "'\''\\\\'\'''\''", "g", $2), $3}' \
+| #t updateで引数を適切に扱えるように、シングルクォートを加工 ### 140字以下に切り詰められた際、クォートの対応が取れなくなる可能性がある。
+gawk -F# 'OFS="#"; {print $1,gensub("(https?):(//)", "\\1;\\2", "g", $2), $3}' \
+| #post時にURL展開をされないように、https?://を加工
+gawk -F# 'OFS="#"; {print $1,gensub("\\.(net|NET|org|Org|com|at|tv|info|gov|edu|coop|asia|biz|int|mobi)", " dot \\1", "g", $2), $3}' \
+| #post時にURL変換されないように、TLDを加工
 gawk -F# '\
-    BEGIN{OFS="#"; max_chars=135}; \
-    length($0)>max_chars{printf("%s#\"%s...\"#<%s>\n",$1, substr($2,1,(max_chars - (length($1)+length($3)+3))), $3); next}; \
+    BEGIN {OFS="#"; max_chars=135}; \
+    length($0) > max_chars {printf("%s#\"%s...\"#<%s>\n",$1, substr($2,1,(max_chars - (length($1)+length($3)+3))), $3); next}; \
     {print $1,"\""$2"\"","<"$3">"}' \
-        |
-sed -e 's@^ @t update -P /home/gin/.trc_update_bot '\''@' |
-sed -e 's@$@'\''; sleep 10;@' |
-tr '#' '\n' |
-tee -a /home/gin/tmp/gen_arch_pkg_list_test_log.txt |
-sh 1>/dev/null
+|
+sed -e 's@^ @t update -P /home/gin/.trc_update_bot '\''@' \
+|
+sed -e 's@$@'\''; sleep 10;@' \
+|
+tr '#' '\n' \
+|
+tee >> ~/tmp/arch_update_info_notifier_testlog.txt
+sh 1> /dev/null
