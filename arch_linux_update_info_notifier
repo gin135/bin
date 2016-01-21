@@ -101,5 +101,6 @@ sed -e 's@$@'\''; sleep 10;@' \
 |
 tr '#' '\n' \
 |
-tee >> ~/tmp/arch_update_info_notifier_testlog.txt
+tee ~/tmp/arch_update_info_notifier_testlog.txt \
+|
 sh 1> /dev/null
