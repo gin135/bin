@@ -1,0 +1,27 @@
+#!/bin/bash -vx
+#
+# oneliner シェル芸フォーマットをワンライナーフォーマットに直す
+#
+# usage: oneliner <file>
+#
+# written by Tatsunori Aoki (ginjiro.135@gmail.com) / Date: 2016-04-27
+
+
+# 引数およびファイル有無のチェック
+[ -n "$1" ] || exit 1
+[ -f "$1" ] || exit 2
+
+cat $1 \
+| # ファイルの出力
+sed -e '1d; /^$/d' \
+| # シェバンおよび空行の削除
+sed -e '$d' \
+| # 最終行(コメントのみの行)の削除
+sed -e 's/\\$/| /' \
+| # バックスラッシュ改行の置換
+sed -e 's/^|.*//' \
+| # パイプ行の削除
+tr -d '\n' \
+| # 改行の削除
+sed -e 's/$/\n/'
+  # 末端改行の付加
