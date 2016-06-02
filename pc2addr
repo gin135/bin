@@ -1,17 +1,25 @@
-#!/bin/sh
-
+#!/bin/bash -vx
 #
-# Usage: $ pc2addr POSTAL_CODE
+# pc2addr 郵便番号を住所に変換する
 #
+# usage: pc2addr <POSTAL_CODE>
+#
+# written by Tatsunori Aoki (ginjiro.135@gmail.com) / Date: 2016-06-02
 
-#set -exv
 
-if [ $# -ne 1 ]; then
-    exit 1
-fi
+# 引数数のチェック
+[ $# -eq 1 ] || exit 1
 
-curl --fail --silent http://zip.cgis.biz/csv/zip.php?zn=`echo -n $1 | tr -d '-'` \
-|
+echo $1 \
+| # 郵便番号の出力
+tr -d '-' \
+| # ハイフンの除去
+xargs -I@ curl --fail --silent 'http://zip.cgis.biz/csv/zip.php?zn='@ \
+| # 住所の取得
 nkf -w -Lu \
-|
+| # 文字・改行コードの変換
 awk -F, 'NR==1{if(gensub(/"/, "", "g", $9)=="0"){exit}}; NR==2{print gensub(/"/, "", "g", $5$6$7)}'
+  # 出力の整形
+
+# 実行後エラーチェック
+[ $(plus ${PIPESTATUS[@]}) -eq 0 ] || exit 2
