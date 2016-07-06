@@ -1,0 +1,15 @@
+#!/bin/awk -f
+#
+# ymul 各レコードの積を出力する
+#
+# usage: ymul file
+#
+# written by Tatsunori Aoki (ginjiro.135@gmail.com) / Date: 2016-07-05
+
+{
+    mul=1
+    for(i=1; i<=NF; i++) {
+        mul*=$i
+    }
+    print mul
+}
