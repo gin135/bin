@@ -1,25 +1,21 @@
-#!/bin/bash -vx
+#!/bin/bash
 #
 # pc2addr 郵便番号を住所に変換する
 #
 # usage: pc2addr <POSTAL_CODE>
 #
-# written by Tatsunori Aoki (ginjiro.135@gmail.com) / Date: 2016-06-02
+# written by Tatsunori Aoki (ginjiro.135@gmail.com) / Date: 2016-10-13
 
+#set -xv # デバッグ用
 
 # 引数数のチェック
 [ $# -eq 1 ] || exit 1
 
-echo $1 \
-| # 郵便番号の出力
-tr -d '-' \
-| # ハイフンの除去
-xargs -I@ curl --fail --silent 'http://zip.cgis.biz/csv/zip.php?zn='@ \
-| # 住所の取得
-nkf -w -Lu \
-| # 文字・改行コードの変換
-awk -F, 'NR==1{if(gensub(/"/, "", "g", $9)=="0"){exit}}; NR==2{print gensub(/"/, "", "g", $5$6$7)}'
-  # 出力の整形
+echo $1                         | # 郵便番号の出力
+tr -d '-'   | # ハイフンの除去
+xargs -I@ curl --fail --silent 'http://zip.cgis.biz/csv/zip.php?zn='@ | # 住所の取得
+nkf -w -Lu #| # 文字・改行コードの変換
+#gawk -F, 'NR==1{if(gensub(/"/, "", "g", $9)=="0"){exit}}; NR==2{print gensub(/"/, "", "g", $5$6$7)}' # レコード・フィールドの抽出
 
 # 実行後エラーチェック
 [ $(plus ${PIPESTATUS[@]}) -eq 0 ] || exit 2
