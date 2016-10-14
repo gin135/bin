@@ -4,18 +4,21 @@
 #
 # usage: pc2addr <POSTAL_CODE>
 #
-# written by Tatsunori Aoki (ginjiro.135@gmail.com) / Date: 2016-10-13
+# written by Tatsunori Aoki (ginjiro.135@gmail.com) / Date: 2016-10-14
 
-#set -xv # デバッグ用
+#set -n # テスト用
+#set -vx # デバッグ用
 
 # 引数数のチェック
 [ $# -eq 1 ] || exit 1
 
-echo $1                         | # 郵便番号の出力
-tr -d '-'   | # ハイフンの除去
-xargs -I@ curl --fail --silent 'http://zip.cgis.biz/csv/zip.php?zn='@ | # 住所の取得
-nkf -w -Lu #| # 文字・改行コードの変換
-#gawk -F, 'NR==1{if(gensub(/"/, "", "g", $9)=="0"){exit}}; NR==2{print gensub(/"/, "", "g", $5$6$7)}' # レコード・フィールドの抽出
+echo $1                                                                 | # 郵便番号の出力
+tr -d '-'                                                               | # ハイフンの除去
+xargs -I@ curl --fail --silent 'http://zip.cgis.biz/csv/zip.php?zn='@   | # 住所の取得
+nkf -w -Lu                                                              | # 文字・改行コードの変換
+awk '{r[NR]=$0} END{if(NR<2){exit 1}; for(i=1;i<=NR;i++){print r[i]}}'  | # エラーチェック
+tr -d '"'                                                               | # ダブルクォートの除去
+awk -F, 'NR==2{print $5$6$7}'                                             # レコード・フィールドの抽出
 
 # 実行後エラーチェック
 [ $(plus ${PIPESTATUS[@]}) -eq 0 ] || exit 2
