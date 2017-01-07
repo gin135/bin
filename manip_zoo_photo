@@ -1,0 +1,17 @@
+#!/bin/sh -vx
+#
+# manip_zoo_photo 動物園写真をTwitter投稿用に加工する
+#
+# usage: manip_zoo_photo <dir>
+#
+# written by Tatsunori Aoki (ginjiro.135@gmail.com) / Date: 2016-04-26
+
+
+[ -n "$1" ] || exit 1
+[ -d "$1" ] || exit 2
+
+cpu_cores=$(cat /proc/cpuinfo | grep 'cores' | sed -n '2,$p' | grep -c '' || echo 1)
+
+find $1 -name "*.JPG" \
+|
+xargs -I@ -P $cpu_cores mogrify -quality ${2:-88} @

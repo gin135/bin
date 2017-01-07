@@ -1,0 +1,34 @@
+#!/bin/sh
+#
+# print_oreilly_animals O'reillyの書籍カバーに描かれている動物の全リストを出力する
+#
+# usage: print_oreilly_animals
+#
+# written by Tatsunori Aoki (ginjiro.135@gmail.com) / Date: 2017-01-07
+
+
+seq 0 20 inf                        | # URLクエリの生成
+awk '{print "\
+    curl -s http://www.oreilly.com/animals.csp?x-o="$0" \
+    |nkf -Lu \
+    |sed '\''s/Regul.* kurz & gut/Regular Expression Pocket Reference, 2nd Edition/'\'' \
+    |grep -E '\''class=\"(book-title|animal-name)\"'\'' \
+    || exit 0\
+    "}'                             | # コマンド列の生成
+                                        ## curl: URLクエリ毎にHTMLソースを取得
+                                        ## nkf: 文字エンコーディングをUTF-8に変換(Regular Expression Pocket Reference, 2nd Edition用)
+                                        ## sed: 独語タイトルを英語タイトルに修正(Regular Expression Pocket Reference, 2nd Edition用)
+                                        ## grep: 書籍名および動物名レコードの抽出
+                                        ## || exit: 番兵コマンド
+sh                                  | # コマンドの実行
+tr -d '\n'                          | # 改行の除去
+sed 's;</h2>;&\n;g'                 | # <h2>タグの後に改行を挿入
+sed 's;</h1>;&{FS};g'               | # <h1>タグの後にフィールドセパレータ{FS}を挿入
+sed 's/<[^>]*>//g'                  | # HTMLタグの除去
+sed 's/\s\{2,\}//g'                 | # 2個以上続くスペースの除去
+### 1.書籍名 2.動物名
+awk -F'{FS}' '$0=$2'                | # 動物名フィールドの抽出
+### 1.動物名
+awk -vFS= 'OFS=""; $1=toupper($1)'  | # 頭文字を大文字に変換
+sort                                | # ソート
+uniq                                  # 重複レコードの除去

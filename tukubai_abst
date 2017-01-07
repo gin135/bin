@@ -1,0 +1,40 @@
+#!/bin/bash
+#
+# tukubai_abst 全Tukubaiコマンドの概要を出力する。
+#
+# usage: tukubai_abst [-r|--right]
+#
+# written by Tatsunori Aoki (ginjiro.135 at gmail.com) / Date 2016-12-06
+
+### 現状の問題点
+# 1x, roundのような英語版のコマンドは、LANG=Cにしないとman2で出力されない。
+# また、chkdata_attr, wexcelx-coreの2つに関しては、manページ自体が存在しない。
+# よって、現状では、2行目のxargs man2の終了ステータスが、必ず非0になってしまう。
+
+
+# Tukubaiコマンドの格納先
+tukubai_cmd_dir='/home/TOOL'
+# ketaコマンドで使用する整形幅
+width=$(ls ${tukubai_cmd_dir} |awk '$0=length($0)' |sort -nr |head -n 1)
+
+# 引数のチェック
+# 引数がある場合は、コマンド名を右寄せにする。
+[ -z $1 ] && migiyose='-'
+
+
+ls ${tukubai_cmd_dir}                        |  # 全Tukubaiコマンドの出力
+xargs -I@ man2 @                             |  # 各Tukubaiコマンドに関して、それぞれmanページを出力
+sed -n '/[<＜]名前[>＞]/{n;p}'               |  # 各々のmanページから、コマンドの概要レコードを抽出
+awk NF=NF                                    |  # 余分なスペースの除去
+sed 's/：/:/1'                               |  # 不正な区切り文字、全角コロン'：'を半角コロン':'に置換
+sed 's/ - / : /1'                            |  # 不正な区切り文字、ハイフン'-'を半角コロン':'に置換
+awk '$1 ~ /:/{sub(/:/, " :", $1)} $1 !~ /:/' |  # 区切り文字が第一フィールドの文字列に結合している"str:"ものを、"str :"に置換
+awk -F: 'NF==1{sub(/ /," : ");print}; 1'     |  # 区切り文字が無いレコードに、半角コロン':'を付加
+sed '/。$/!s/$/。/'                          |  # 末尾に句点が無いレコードに、句点を付加
+keta ${migiyose}${width}                        # 出力の整形
+
+
+## エラーチェック
+#[ $(plus ${PIPESTATUS[@]}) -ne 0  ] && exit 1
+#
+#exit 0

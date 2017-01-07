@@ -1,0 +1,50 @@
+#!/bin/bash
+#
+# slh: Save Last History, 最後に実行したコマンドをファイルに書き出す
+#
+# usage: slh <-c>
+#
+# written by Tatsunori Aoki (ginjiro.135 at gmail dot com) / Date: 2016-09-30
+
+
+# エラーチェック用関数
+ERROR_CHECK() {
+    [ $(echo ${PIPESTATUS[@]} | awk '{for(i=1;i<=NF;i++){s+=$i}} END{print s}') -eq 0 ] && return
+    rm $output
+    exit 1
+}
+
+
+# デフォルトの出力先
+output=/tmp/cmd_$$.sh
+
+
+# オプション解析
+while getopts c OPT; do
+    case $OPT in
+    c)
+        # ファイルの出力先をカレントディレクトリに変更する
+        output=$PWD/cmd_$$.sh
+        ;;
+    ?)
+        echo "Usage: $0 <-c>"
+        echo " -c	Save current dir."
+        exit 1
+        ;;
+    esac
+done
+shift $(expr $OPTIND - 1)
+
+
+cat /etc/passwd                       | # /etc/passwd の出力
+awk -F: '$1 ~ /'$USER'/ && $0=$7'     | # カレントログインユーザのログインシェルの抽出
+awk -F/ '$0=$NF'                      | # ログインシェルのbasename部分の抽出
+xargs -I@ cat ~/'.'@'_history'        | # ログインシェルに対応したヒストリの出力
+tail -n 1 > $output                     # 最新ヒストリの抽出
+ERROR_CHECK
+
+
+# 書き出したファイルの内容およびファイルパスの出力
+cat $output
+echo $output
+exit 0
