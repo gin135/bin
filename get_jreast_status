@@ -1,0 +1,16 @@
+#!/bin/sh
+#
+# get_jreast_status JR東日本の電車運行状況を取得する
+#
+# usage: get_jrkanto_status [AREA]
+#
+# written by Tatsunori Aoki (ginjiro.135@gmail.com) / Date: 2017-04-06
+
+curl -s http://traininfo.jreast.co.jp/train_info/kanto.aspx     |
+nkf -Lu                                                         |
+grep -A 1 'text-tit-xlarge'                                     |
+sed '/acess_i/s/.*alt="\([^"]*\)".*/\1/'                        |
+sed 's/<[^>]*>//g'                                              |
+tr -d -- '- '                                                   |
+awk NF=NF                                                       |
+xargs -n 2
