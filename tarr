@@ -1,0 +1,11 @@
+#!/bin/bash
+#
+# tarr USP Tukubaiのtarrもどき
+#
+# usage: tarr
+#
+# written by Tatsunori Aoki (ginjiro.135@gmail.com) / Date: 2017-09-22
+#
+# オプションも実装して、れっきとしたtarrにするつもり...
+
+awk '{for(i=1;i<=NF;i++){print $i}}'
