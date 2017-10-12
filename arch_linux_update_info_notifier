@@ -97,7 +97,7 @@ gawk -F# '\
 |
 sed -e 's@^ @t update -P /home/gin/.trc_update_bot '\''@' \
 |
-sed -e 's@$@'\''; sleep 15;@' \
+sed -e 's@$@'\''; sleep 20;@' \
 |
 tr '#' '\n' \
 |
