@@ -1,0 +1,13 @@
+#!/bin/sh
+#
+# passgen パスワード用のランダムな文字列を生成する
+#
+# usage: passgen [length] [class]
+# [class]: alnum, alpha, digit, print
+#
+# written by Tatsunori Aoki (ginjiro.135 at gmail.com) / Date: 2017-10-24
+
+cat /dev/urandom             |
+tr -dc "[:${2:-alnum}:]"     |
+fold -w ${1:-32}             |
+head -n 1
