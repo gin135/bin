@@ -2,12 +2,13 @@
 #
 # passgen パスワード用のランダムな文字列を生成する
 #
-# usage: passgen [length] [class]
+# usage: passgen [class] [length]
 # [class]: alnum, alpha, digit, print
+# [length]: (default: 32)
 #
 # written by Tatsunori Aoki (ginjiro.135 at gmail.com) / Date: 2017-10-24
 
-cat /dev/urandom             |
-tr -dc "[:${2:-alnum}:]"     |
-fold -w ${1:-32}             |
-head -n 1
+cat /dev/urandom             | # 文字ソースの出力
+tr -dc "[:${1:-alnum}:]"     | # 指定された文字クラスの抽出
+fold -w ${2:-32}             | # 指定された文字数の抽出
+head -n 1                      # パスワードの出力

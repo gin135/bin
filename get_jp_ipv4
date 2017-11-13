@@ -1,14 +1,11 @@
 #!/bin/sh
-
 #
-# Usage: $ get_jp_ipv4
+# get_jp_ipv4 日本に割当てられているIPv4アドレス一覧を表示する
 #
+# usage: get_jp_ipv4
+#
+# written by Tatsunori Aoki (ginjiro.135 at gmail.com)
 
-
-curl --fail --silent http://ftp.apnic.net/stats/apnic/delegated-apnic-latest \
-|
-grep "JP" \
-|
-grep "ipv4" \
-|
-awk -F'|' '{OFS=""; print $4,"/",log(2**32/$5)/log(2)}'
+curl -s "http://ftp.apnic.net/stats/apnic/delegated-apnic-latest"     | # 元データの取得
+grep '|JP|ipv4|'                                                      | # 割当:日本および種別:IPv4レコードの抽出
+awk -F'|' '{OFS=""; print $4,"/",log(2**32/$5)/log(2)}'                 # IP/CIDR書式に整形

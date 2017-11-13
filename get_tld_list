@@ -1,13 +1,16 @@
 #!/bin/sh
-
 #
-# Usage: $ get_tld_list
+# get_tld_list トップレベルドメイン一覧を表示する
 #
+# usage: get_tld_list
+#
+# written by Tatsunori Aoki (ginjiro.135 at gmail.com)
+#
+# [TODO]
+# 一部TLDは、実体参照形式でRLOを含んでいる
+#   -> 面倒臭いので対応させなくても良いんじゃないかな...
 
-curl --fail --silent http://www.iana.org/domains/root/db \
-|
-grep 'class="domain tld"' \
-|
-sed -e 's;<[^>]*>;;g' -e 's/&#x[0-9a-z]\{4\};//g' \
-|
-tr -d ' '
+curl -s 'http://www.iana.org/domains/root/db'     | # 元データの取得
+grep 'class="domain tld"'                         | # TLD情報が記載されたレコードの抽出
+sed 's/<[^>]*>//g'                                | # HTMLタグの除去
+awk '$1=$1'                                         # インデントの除去

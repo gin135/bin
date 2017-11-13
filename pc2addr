@@ -6,8 +6,13 @@
 #
 # written by Tatsunori Aoki (ginjiro.135@gmail.com) / Date: 2016-10-14
 
-#set -n # テスト用
-#set -vx # デバッグ用
+
+# エラーチェック用関数
+ERROR_CHECK() {
+    # [ $(plus ${PIPESTATUS[@]}) -eq 0 ] || exit 2
+    [ $(echo ${PIPESTATUS[@]} |awk '{for(i=1;i<=NF;i++){s+=$i}} END{print s}') -eq 0 ] && return
+    exit 2
+}
 
 # 引数数のチェック
 [ $# -eq 1 ] || exit 1
@@ -20,5 +25,6 @@ awk '{r[NR]=$0} END{if(NR<2){exit 1}; for(i=1;i<=NR;i++){print r[i]}}'  | # エ�
 tr -d '"'                                                               | # ダブルクォートの除去
 awk -F, 'NR==2{print $5$6$7}'                                             # レコード・フィールドの抽出
 
-# 実行後エラーチェック
-[ $(plus ${PIPESTATUS[@]}) -eq 0 ] || exit 2
+ERROR_CHECK
+
+exit 0
