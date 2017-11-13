@@ -1,5 +1,13 @@
 #!/bin/sh
+#
+# delete_thumbsdb_and_desktopini Windowsが作成するゴミファイルを削除する
+#
+# usage: delete_thumbsdb_and_desktopini [path]
+#
+# written by Tatsunori Aoki (ginjiro.135 at gmail.com)
+#
+# コマンド名が無駄に長いので、もうちょっとスマートな名称に変更したい…
 
-find $1 -type f -name 'Thumbs.db' -o -name 'desktop.ini'     | # Thumbs.dbおよびdesktop.iniのパスの出力
-sed 's/.*/"&"/'                                              | # パスのクォーティング(スペース含パス対策)
-xargs -I@ rm -v @                                              # 削除の実行
+find ${1:-.} -type f -name 'Thumbs.db' -o -name 'desktop.ini'  | # Thumbs.dbおよびdesktop.iniのパスの出力
+sed 's/.*/"&"/'                                                | # パスのクォーティング(スペース含パス対策)
+xargs -I@ rm -v @                                                # 削除の実行

@@ -4,9 +4,9 @@ commandset='matching'
 query=''
 format='plaintext'
 
-[ -z $1 ] && commandset='browse' && query='sort-by-orders'
+[ -z $1 ] && commandset='browse' && query='sort-by-votes'
 [ -n $1 ] && query=$1'/'$(echo -n $1 | base64)
 
-curl -sL http://www.commandlinefu.com/commands/${commandset}/${query}/${format} |
+curl -sL "http://www.commandlinefu.com/commands/${commandset}/${query}/${format}" |
 sed '1,2d' |
 sed -n '/^# /{h; n; G; s/\n/\t/; s/$/\n/; p}'

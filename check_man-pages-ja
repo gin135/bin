@@ -1,27 +1,37 @@
 #!/bin/bash
-
-#set -exv
+#
+# check_man-pages-ja 日本語翻訳版manページのパッケージリリース状況の確認および通知をおこなう
+#
+# usage: check_man-pages-ja    # crontabに登録して定期実行する
+#
+# written by Tatsunori Aoki (ginjiro.135 at gmail.com)
 
 pkg_ver=$(date '+%Y%m%d')
+md5_path="/tmp/man-pages-ja-${pkg_ver}.md5"
 
+# コマンド実行エラーチェック用関数
 ERROR_CHECK() {
     [ $(echo ${PIPESTATUS[@]} | awk '{for(i=1;i<=NF;i++){s+=$i}} END{print s}') -eq 0 ] && return
-    [ -e /tmp/man-pages-ja-${pkg_ver}.md5 ] && rm /tmp/man-pages-ja-${pkg_ver}.md5
+    [ -e ${md5_path} ] && rm ${md5_path}
     exit 1
 }
 
 
+# 対象パッケージがリリースされているかどうかの確認
 curl -s https://linuxjm.osdn.jp/download.html     |
 grep "man-pages-ja-${pkg_ver}.tar.gz" >/dev/null
 ERROR_CHECK
 
-[ -e /tmp/man-pages-ja-${pkg_ver}.md5 ] && exit 2
+# MD5ハッシュ値を取得済みかどうかの確認
+[ -e ${md5_path} ] && exit 2
 
-curl -s https://linuxjm.osdn.jp/man-pages-ja-${pkg_ver}.tar.gz     |
+# MD5ハッシュ値の生成
+curl -s "https://linuxjm.osdn.jp/man-pages-ja-${pkg_ver}.tar.gz"   |
 md5sum                                                             |
-awk '$0=$1' > /tmp/man-pages-ja-${pkg_ver}.md5
+awk '$0=$1' > ${md5_path}
 ERROR_CHECK
 
-t update -P /home/gin/.trc "@gin_135 man-pages-ja(${pkg_ver}版)がリリースされているぞい。
+# Twitterへ投稿
+t update -P ${HOME}/.trc "@gin_135 man-pages-ja(${pkg_ver}版)がリリースされているぞい。
 https://linuxjm.osdn.jp/man-pages-ja-${pkg_ver}.tar.gz
 MD5: $(cat /tmp/man-pages-ja-${pkg_ver}.md5)" >/dev/null
