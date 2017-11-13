@@ -1,4 +1,10 @@
 #!/bin/sh
+#
+# align ワンライナーで書かれたシェルスクリプトを1行1コマンド形式に整形する
+#
+# usage: align [file]
+#
+# written by Tatsunori Aoki (ginjiro.135 at gmail.com)
 
 cat $1                      |
 sed '/^#!\/bin\/*sh$/d'     |
@@ -6,6 +12,10 @@ sed '/^$/d'                 |
 sed 's/ | / |\n/g'          |
 sed '1i#!/bin/sh\n'         |
 tac                         |
-awk '/<[(][^<]*[)]/{bash++} /^#!\/bin\/bash$/{next} {if(bash != 0){sub(/^#!\/bin\/sh$/, "#!/bin/bash", $0)}; print}' |
+awk '
+    /<[(][^<]*[)]/{bash++}
+    /^#!\/bin\/bash$/{next}
+    {if(bash != 0){sub(/^#!\/bin\/sh$/, "#!/bin/bash", $0)}; print}
+    '                       |
 tac                         |
 python2 /home/TOOL/sb_pipealign
