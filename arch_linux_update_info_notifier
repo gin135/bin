@@ -35,7 +35,7 @@ sed -e 's;<item>;\n&;g' \
 |
 sed -e 's;</item>;&\n;g' \
 |
-grep -Ev '(community|multilib)?-?testing' \
+grep -Ev '([Tt]esting|[Uu]nstable)' \
 |
 grep -v '^$' \
 |
