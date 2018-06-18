@@ -1,0 +1,4 @@
+#!/bin/bash
+
+file=$1
+script -f >(awk '{print strftime("%F %T",$0)} {fflush()}' >> ${file:-typescript})
