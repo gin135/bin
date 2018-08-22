@@ -2,7 +2,7 @@
 #
 # torikizoku.sh 鳥貴族の禁煙店へのリンクリストを出力するCGI
 #
-# written by Tatsunori Aoki (ginjiro.135 at gmail.com) / Date: 2017-10-01
+# written by Tatsunori Aoki (ginjiro.135 at gmail.com) / Date: 2018-07-31
 
 cat <<EOS
 content-type: text/html
@@ -15,4 +15,6 @@ grep -v 'search'                                                                
 awk '$1=$1'                                                                                 | # インデントの除去
 sed 's/<[^>]*>/<:FS:>&<:FS:>/g'                                                             | # HTMLタグ毎にフィールドセパレータを追加
 awk -F'<:FS:>' '/pref/{print "pref",$5} /linkBox/{print $4$5$6}'                            | # 必要なフィールドの抽出
-awk '$1~/pref/{print "<div><strong>"$2"</strong></div>"} $1!~/pref/{print "<li>"$0"</li>"}'   # HTMLコードへの整形
+awk '$1~/pref/{print "<div><strong>"$2"</strong></div>"} $1!~/pref/{print "<li>"$0"</li>"}' | # HTMLコードへの整形
+sed '1i<!Docutype HTML><html><head><meta charset=utf-8></head><body>'                       | # HTMLコードへの整形2
+sed '$a</body></html>'                                                                        # HTMLコードへの整形3
