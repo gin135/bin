@@ -35,7 +35,7 @@ sed -e 's;<item>;\n&;g' \
 |
 sed -e 's;</item>;&\n;g' \
 |
-grep -Ev '([Tt]esting|[Uu]nstable)' \
+grep -Ev '(community|multilib)?-?testing' \
 |
 grep -v '^$' \
 |
@@ -97,7 +97,7 @@ gawk -F# '\
 |
 sed -e 's@^ @t update -P /home/gin/.trc_update_bot '\''@' \
 |
-sed -e 's@$@'\''; sleep 20;@' \
+sed -e 's@$@'\''; sleep 30;@' \
 |
 tr '#' '\n' \
 |
