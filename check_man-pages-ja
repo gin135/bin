@@ -32,6 +32,6 @@ awk '$0=$1' > ${md5_path}
 ERROR_CHECK
 
 # Twitterへ投稿
-t update -P ${HOME}/.trc "@gin_135 man-pages-ja(${pkg_ver}版)がリリースされているぞい。
-https://linuxjm.osdn.jp/man-pages-ja-${pkg_ver}.tar.gz
-MD5: $(cat /tmp/man-pages-ja-${pkg_ver}.md5)" >/dev/null
+#t update -P ${HOME}/.trc "@gin_135 man-pages-ja(${pkg_ver}版)がリリースされているぞい。
+#https://linuxjm.osdn.jp/man-pages-ja-${pkg_ver}.tar.gz
+#MD5: $(cat /tmp/man-pages-ja-${pkg_ver}.md5)" >/dev/null
