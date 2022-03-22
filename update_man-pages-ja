@@ -8,7 +8,7 @@
 # written by Tatsunori Aoki (ginjiro.135 at gmail.com)
 
 pkg_ver=$(date '+%Y%m15')
-md5_path="/home/gin/tmp/man-pages-ja/man-pages-ja-${pkg_ver}.md5"
+md5_path="${HOME}/tmp/man-pages-ja/man-pages-ja-${pkg_ver}.md5"
 
 # コマンド実行エラーチェック用関数
 ERROR_CHECK() {
@@ -33,11 +33,11 @@ awk '$0=$1' > ${md5_path}
 ERROR_CHECK
 
 # PKGBUILDの生成
-cat /home/gin/tmp/man-pages-ja/TEMPLATE |
-sed -e "s/<PKG_VER>/${pkg_ver}/" -e "s/<MD5>/$(cat ${md5_path})/" > /home/gin/aur/man-pages-ja/PKGBUILD
+cat ${HOME}/tmp/man-pages-ja/TEMPLATE |
+sed -e "s/<PKG_VER>/${pkg_ver}/" -e "s/<MD5>/$(cat ${md5_path})/" > ${HOME}/aur/man-pages-ja/PKGBUILD
 
 # パッケージのcommit && push
-cd /home/gin/aur/man-pages-ja
+cd ${HOME}/aur/man-pages-ja
 makepkg --printsrcinfo > .SRCINFO
 git commit -am "パッケージを${pkg_ver}版に更新"
 git push
