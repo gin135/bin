@@ -9,6 +9,7 @@
 
 pkg_ver=$(date '+%Y%m15')
 md5_path="${HOME}/tmp/man-pages-ja/man-pages-ja-${pkg_ver}.md5"
+pkg_url="https://linuxjm.osdn.jp/man-pages-ja-${pkg_ver}.tar.gz"
 
 # コマンド実行エラーチェック用関数
 ERROR_CHECK() {
@@ -19,22 +20,23 @@ ERROR_CHECK() {
 
 
 # 対象パッケージがリリースされているかどうかの確認
-curl -s https://linuxjm.osdn.jp/download.html     |
-grep "man-pages-ja-${pkg_ver}.tar.gz" >/dev/null
+curl -s https://linuxjm.osdn.jp/download.html   |
+grep "man-pages-ja-${pkg_ver}.tar.gz"           >/dev/null
 ERROR_CHECK
 
 # MD5ハッシュ値を取得済みかどうかの確認
 [ -e ${md5_path} ] && exit 2
 
 # MD5ハッシュ値の生成
-curl -s "https://linuxjm.osdn.jp/man-pages-ja-${pkg_ver}.tar.gz"   |
-md5sum                                                             |
-awk '$0=$1' > ${md5_path}
+curl -s ${pkg_url} |
+md5sum             |
+awk '$0=$1'        > ${md5_path}
 ERROR_CHECK
 
 # PKGBUILDの生成
-cat ${HOME}/tmp/man-pages-ja/TEMPLATE |
-sed -e "s/<PKG_VER>/${pkg_ver}/" -e "s/<MD5>/$(cat ${md5_path})/" > ${HOME}/aur/man-pages-ja/PKGBUILD
+cat ${HOME}/tmp/man-pages-ja/TEMPLATE   |
+sed "s/<PKG_VER>/${pkg_ver}/"           |
+sed "s/<MD5>/$(cat ${md5_path})/"       > ${HOME}/aur/man-pages-ja/PKGBUILD
 
 # パッケージのcommit && push
 cd ${HOME}/aur/man-pages-ja
