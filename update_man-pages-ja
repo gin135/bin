@@ -1,0 +1,43 @@
+#!/bin/bash
+#
+# update_man-pages-ja 日本語翻訳版manページのパッケージリリース状況の確認およびAURパッケージの更新をおこなう
+#
+# usage: update_man-pages-ja    # crontabに登録して定期実行する
+# issue: crontabだとリポジトリへのpushが出来ないかも
+#
+# written by Tatsunori Aoki (ginjiro.135 at gmail.com)
+
+pkg_ver=$(date '+%Y%m15')
+md5_path="/home/gin/tmp/man-pages-ja/man-pages-ja-${pkg_ver}.md5"
+
+# コマンド実行エラーチェック用関数
+ERROR_CHECK() {
+    [ $(echo ${PIPESTATUS[@]} | awk '{for(i=1;i<=NF;i++){s+=$i}} END{print s}') -eq 0 ] && return
+    [ -e ${md5_path} ] && rm ${md5_path}
+    exit 1
+}
+
+
+# 対象パッケージがリリースされているかどうかの確認
+curl -s https://linuxjm.osdn.jp/download.html     |
+grep "man-pages-ja-${pkg_ver}.tar.gz" >/dev/null
+ERROR_CHECK
+
+# MD5ハッシュ値を取得済みかどうかの確認
+[ -e ${md5_path} ] && exit 2
+
+# MD5ハッシュ値の生成
+curl -s "https://linuxjm.osdn.jp/man-pages-ja-${pkg_ver}.tar.gz"   |
+md5sum                                                             |
+awk '$0=$1' > ${md5_path}
+ERROR_CHECK
+
+# PKGBUILDの生成
+cat /home/gin/tmp/man-pages-ja/TEMPLATE |
+sed -e "s/<PKG_VER>/${pkg_ver}/" -e "s/<MD5>/$(cat ${md5_path})/" > /home/gin/aur/man-pages-ja/PKGBUILD
+
+# パッケージのcommit && push
+cd /home/gin/aur/man-pages-ja
+makepkg --printsrcinfo > .SRCINFO
+git commit -am "パッケージを${pkg_ver}版に更新"
+git push
