@@ -6,16 +6,15 @@
 #
 # written by Tatsunori Aoki (ginjiro.135 at gmail.com) / Date: 2022-04-26
 
-curl -s https://www.oreilly.com/animals.csp                                     | # ソースの取得
-grep 'class="pagination pagination--top"'                                       | # 最大レコード数の取得1
-grep -o 'of [0-9]*'                                                             | # 最大レコード数の取得2
-cut -d ' ' -f 2                                                                 | # 最大レコード数の取得3
-sed 's#.*#curl -s https://www.oreilly.com/animals.csp?x-o="[0-&:20]"#'          | # curlコマンドの生成
-sh                                                                              | # コマンドの実行
-nkf -Lu                                                                         | # 改行コードの変換
-sed 's/Regul.* kurz & gut/Regular Expression Pocket Reference, 2nd Edition/'    | # 書籍タイトル誤植の修正
-grep 'class="animal-name"'                                                      | # 動物名の抽出
-sed 's/<[^<]*>//g'                                                              | # HTMLタグの除去
-sed 's/^\s*//'                                                                  | # 行頭の余分なスペースの除去
-sort                                                                            | # ソート
-uniq                                                                              # 重複レコードの除去
+curl -s https://www.oreilly.com/animals.csp                            | # ソースの取得
+grep 'class="pagination pagination--top"'                              | # 最大レコード数の取得1
+grep -o 'of [0-9]*'                                                    | # 最大レコード数の取得2
+cut -d ' ' -f 2                                                        | # 最大レコード数の取得3
+sed 's#.*#curl -s https://www.oreilly.com/animals.csp?x-o="[0-&:20]"#' | # curlコマンドの生成
+sh                                                                     | # コマンドの実行
+nkf -Lu                                                                | # 改行コードの変換
+grep 'class="animal-name"'                                             | # 動物名の抽出
+sed 's/<[^<]*>//g'                                                     | # HTMLタグの除去
+sed 's/^\s*//'                                                         | # 行頭の余分なスペースの除去
+sort                                                                   | # ソート
+uniq                                                                     # 重複レコードの除去
